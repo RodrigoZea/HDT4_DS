@@ -11,6 +11,8 @@ library(quanteda)
 library(tidyr)
 library(ggplot2)
 
+# Lectura de datos
+
 # Limpieza y preprocesamiento de datos.
 #   - Normalizar Texto -> minuscula/mayuscula
 #   - Remover  caracteres especiales
