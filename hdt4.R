@@ -23,35 +23,66 @@ news <- readLines("./en_US/en_US.news.txt")
 twitter <- readLines("./en_US/en_US.twitter.txt")
 
 # Corpus
-BlogTXT <- Corpus(VectorSource(blogs))
+BlogTXT <- VCorpus(blogs)
+NewsTXT <- VCorpus(news)
+TwitterTXT <- VCorpus(twitter)
+
+# Corpus division
+BlogTXT$content<-sample(BlogTXT$content, length(BlogTXT$content)*0.05)
+NewsTXT$content<-sample(NewsTXT$content, length(NewsTXT$content)*0.05)
+TwitterTXT$content<-sample(TwitterTXT$content, length(TwitterTXT$content)*0.05)
+
 # Funcion para cambiar a un espacio
 toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
 
-#   - Normalizar Texto -> minuscula/mayuscula
-BlogTXT <- tm_map(BlogTXT, content_transformer(tolower))
+# Eliminar URLs
+# Extraido de: https://stackoverflow.com/questions/41109773/gsub-function-in-tm-package-to-remove-urls-does-not-remove-the-entire-string
+removeURL <- content_transformer(function(x) gsub("(f|ht)tp(s?)://\\S+", "", x, perl=T))
 
-#   - Remover  caracteres especiales
-BlogTXT <- tm_map(BlogTXT, toSpace, "/")
-BlogTXT <- tm_map(BlogTXT, toSpace, "@")
-BlogTXT <- tm_map(BlogTXT, toSpace, "\\|")
-BlogTXT <- tm_map(BlogTXT, toSpace, "#")
 
-#   - Remover  URLs
 
-#   - Remover emoticones
+data_cleaning <- function(corpus) {
+  #   - Normalizar Texto -> minuscula/mayuscula
+  corpus <- tm_map(corpus, content_transformer(tolower))
+  
+  #   - Remover  caracteres especiales
+  corpus <- tm_map(corpus, toSpace, "/")
+  corpus <- tm_map(corpus, toSpace, "@")
+  corpus <- tm_map(corpus, toSpace, "\\|")
+  corpus <- tm_map(corpus, toSpace, "#")
+  
+  #   - Remover emoticones 
+  #   Non Ascii
+  gsub("[^\x01-\x7F]", "", corpus)
+  
+  #   - Remover signos de puntuacion
+  corpus <- tm_map(corpus, removePunctuation)
+  
+  #   - Remover numeros si no aportan nada.
+  corpus <- tm_map(corpus, removeNumbers)
+  
+  #   - Remover articulos, preposiciones y conjunciones
+  corpus <- tm_map(corpus, removeWords, stopwords("english"))
+  
+  #   - Remover espacios extra
+  corpus <- tm_map(corpus, stripWhitespace)
+}
 
-#   - Remover signos de puntuacion
-BlogTXT <- tm_map(BlogTXT, removePunctuation)
+# Data cleaning for all 3 corpuses
+data_cleaning(BlogTXT)
+data_cleaning(NewsTXT)
+data_cleaning(TwitterTXT)
 
-#   - Remover numeros si no aportan nada.
-BlogTXT <- tm_map(BlogTXT, removeNumbers)
+inspect(BlogTXT)
 
-#   - Remover articulos, preposiciones y conjunciones
-BlogTXT <- tm_map(BlogTXT, removeWords, stopwords("english"))
-
-#   - Remover espacios extra
-BlogTXT <- tm_map(BlogTXT, stripWhitespace)
-
+# Build a term-document matrix
+BlogTXT_dtm <- DocumentTermMatrix(BlogTXT)
+dtm_m <- as.matrix(BlogTXT_dtm)
+# Sort by descearing value of frequency
+dtm_v <- sort(rowSums(dtm_m),decreasing=TRUE)
+dtm_d <- data.frame(word = names(dtm_v),freq=dtm_v)
+# Display the top 5 most frequent words
+head(dtm_d, 5)
 
 # Build a term-document matrix
 #TextDoc_dtm <- TermDocumentMatrix(BlogTXT)
@@ -61,6 +92,7 @@ BlogTXT <- tm_map(BlogTXT, stripWhitespace)
 #dtm_d <- data.frame(word = names(dtm_v),freq=dtm_v)
 # Display the top 5 most frequent words
 #head(dtm_d, 5)
+
 
 
 
