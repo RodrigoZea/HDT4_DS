@@ -1,4 +1,4 @@
-# Instalación de paquetes necesarios para procesar datos:
+# Instalaci?n de paquetes necesarios para procesar datos:
 install.packages("tm")  
 install.packages("SnowballC") 
 install.packages("wordcloud") 
@@ -7,7 +7,7 @@ install.packages("syuzhet")
 install.packages("ggplot2") 
 install.packages("readr")
 
-# Importación de paquetes
+# Importaci?n de paquetes
 library("tm")
 library("SnowballC")
 library("wordcloud")
@@ -71,9 +71,9 @@ data_cleaning <- function(corpus) {
   corpus <- tm_map(corpus, stripWhitespace)
 }
 
-data_cleaning(blogs)
-data_cleaning(news)
-data_cleaning(twitter)
+blogs <- data_cleaning(blogs)
+news <- data_cleaning(news)
+twitter <- data_cleaning(twitter)
 
 term_doc_matrix <- function(corpus){
   # Build a term-document matrix
