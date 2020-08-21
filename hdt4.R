@@ -84,6 +84,15 @@ term_doc_matrix <- function(corpus){
   dtm_d <- data.frame(word = names(dtm_v),freq=dtm_v)
   # Display the top 5 most frequent words
   head(dtm_d, 5)
+  
+  # palabras mas frecuents
+  barplot(dtm_d[1:5,]$freq, las = 2, names.arg = dtm_d[1:5,]$word,
+          col ="lightgreen", main ="Top 5 most frequent words",
+          ylab = "Word frequencies")
+  # nube de palabras
+  wordcloud(words = dtm_d$word, freq = dtm_d$freq, min.freq = 5,
+            max.words=100, random.order=FALSE, rot.per=0.40, 
+            colors=brewer.pal(8, "Dark2"))
 }
 
 term_doc_matrix(blogs)
