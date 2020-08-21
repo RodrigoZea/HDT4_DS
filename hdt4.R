@@ -47,6 +47,7 @@ toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
 #removeSpecialChars <- content_transformer(function(x) gsub(""."","",x))
 removeURL <- function(x) gsub("http[[:alnum:]]*", "", x)
 removeURL2 <- function(x) gsub("www[[:alnum:]]*", "", x)
+removeEmojis <- function(x) gsub("[^\x01-\x7F]", "", x)
 ### myCorpus <- tm_map(myCorpus, removeURL, lazy=TRUE) 
 
 
@@ -58,7 +59,7 @@ data_cleaning <- function(corpus) {
   
   corpus <- tm_map(corpus, content_transformer(removeURL))
   corpus <- tm_map(corpus, content_transformer(removeURL2))
-  
+  corpus <- tm_map(corpus, content_transformer(removeEmojis))
   #   - Remover signos de puntuacion
   corpus <- tm_map(corpus, removePunctuation)
   
