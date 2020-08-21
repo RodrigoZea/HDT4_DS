@@ -18,9 +18,9 @@ library("readr")
 # Lectura de datos
 
 # Limpieza y preprocesamiento de datos.
-blogs <- readLines("./en_US/en_US.blogs.txt")
-news <- readLines("./en_US/en_US.news.txt")
-twitter <- readLines("./en_US/en_US.twitter.txt")
+#blogs <- readLines("./en_US/en_US.blogs.txt")
+#news <- readLines("./en_US/en_US.news.txt")
+#twitter <- readLines("./en_US/en_US.twitter.txt")
 
 get_corpus <- function(dir) {
   return (VCorpus(DirSource(dir, encoding = "UTF-8"), readerControl = list(language = "en")))
@@ -42,21 +42,22 @@ toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
 
 # Eliminar URLs
 # Extraido de: https://stackoverflow.com/questions/41109773/gsub-function-in-tm-package-to-remove-urls-does-not-remove-the-entire-string
-removeURL <- content_transformer(function(x) gsub("(f|ht)tp(s?)://\\S+", "", x, perl=T))
+#removeURL <- content_transformer(function(x) gsub("(f|ht)tp(s?)://\\S+", "", x, perl=T))
+# Extraido de: https://stackoverflow.com/questions/30994194/quotes-and-hyphens-not-removed-by-tm-package-functions-while-cleaning-corpus
+#removeSpecialChars <- content_transformer(function(x) gsub(""."","",x))
+removeURL <- function(x) gsub("http[[:alnum:]]*", "", x)
+removeURL2 <- function(x) gsub("www[[:alnum:]]*", "", x)
+### myCorpus <- tm_map(myCorpus, removeURL, lazy=TRUE) 
+
+
+
 
 data_cleaning <- function(corpus) {
   #   - Normalizar Texto -> minuscula/mayuscula
   corpus <- tm_map(corpus, content_transformer(tolower))
   
-  #   - Remover  caracteres especiales
-  corpus <- tm_map(corpus, toSpace, "/")
-  corpus <- tm_map(corpus, toSpace, "@")
-  corpus <- tm_map(corpus, toSpace, "\\|")
-  corpus <- tm_map(corpus, toSpace, "#")
-  
-  #   - Remover emoticones 
-  #   Non Ascii
-  gsub("[^\x01-\x7F]", "", corpus)
+  corpus <- tm_map(corpus, content_transformer(removeURL))
+  corpus <- tm_map(corpus, content_transformer(removeURL2))
   
   #   - Remover signos de puntuacion
   corpus <- tm_map(corpus, removePunctuation)
@@ -67,8 +68,33 @@ data_cleaning <- function(corpus) {
   #   - Remover articulos, preposiciones y conjunciones
   corpus <- tm_map(corpus, removeWords, stopwords("english"))
   
+  
+  
+  #   - Remover  caracteres especiales
+  corpus <- tm_map(corpus, toSpace, "/")
+  corpus <- tm_map(corpus, toSpace, "@")
+  corpus <- tm_map(corpus, toSpace, "\\|")
+  corpus <- tm_map(corpus, toSpace, "#")
+  corpus <- tm_map(corpus, toSpace, "£")
+  
+  #   - Remover emoticones 
+  #   Non Ascii
+  #gsub("[^\x01-\x7F]", "", corpus)
+  #
+  #gsub(""."","",corpus)
+  corpus <- tm_map(corpus, toSpace, "'")
+  corpus <- tm_map(corpus, toSpace, """)
+  corpus <- tm_map(corpus, toSpace, """)
+  corpus <- tm_map(corpus, toSpace, "-")
+  corpus <- tm_map(corpus, toSpace, ".")
+  corpus <- tm_map(corpus, toSpace, "-")
+  corpus <- tm_map(corpus, toSpace, "'")
+  corpus <- tm_map(corpus, toSpace, "-")
+  
   #   - Remover espacios extra
   corpus <- tm_map(corpus, stripWhitespace)
+  
+  
 }
 
 blogs <- data_cleaning(blogs)
@@ -99,9 +125,9 @@ term_doc_matrix(blogs)
 term_doc_matrix(news)
 term_doc_matrix(twitter)
 
-writeCorpus(blogs, path = "./")
-writeCorpus(news, path="./")
-writeCorpus(twitter, path="./")
+writeCorpus(blogs, path = "./CleanData")
+writeCorpus(news, path="./CleanData")
+writeCorpus(twitter, path="./CleanData")
 
 
 
