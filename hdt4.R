@@ -99,7 +99,9 @@ term_doc_matrix(blogs)
 term_doc_matrix(news)
 term_doc_matrix(twitter)
 
-
+writeCorpus(blogs, path = "./")
+writeCorpus(news, path="./")
+writeCorpus(twitter, path="./")
 
 
 
